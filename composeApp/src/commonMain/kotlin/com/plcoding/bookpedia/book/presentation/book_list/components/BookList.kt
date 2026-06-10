@@ -12,7 +12,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.plcoding.bookpedia.book.domain.Book
+import com.plcoding.bookpedia.book.data.Book
+
 
 @Composable
 fun BookList(
@@ -33,13 +34,13 @@ fun BookList(
         ) { book ->
             BookListItem(
                 book = book,
+                onClick = {
+                    onBookClick(book)
+                },
                 modifier = Modifier
                     .widthIn(max = 700.dp)
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp),
-                onClick = {
-                    onBookClick(book)
-                }
+                    .padding(horizontal = 16.dp)
             )
         }
     }

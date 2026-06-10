@@ -37,21 +37,23 @@ import cmp_bookpedia.composeapp.generated.resources.favorites
 import cmp_bookpedia.composeapp.generated.resources.no_favorite_books
 import cmp_bookpedia.composeapp.generated.resources.no_search_results
 import cmp_bookpedia.composeapp.generated.resources.search_results
-import com.plcoding.bookpedia.book.domain.Book
+import com.plcoding.bookpedia.book.data.Book
 import com.plcoding.bookpedia.book.presentation.book_list.components.BookList
 import com.plcoding.bookpedia.book.presentation.book_list.components.BookSearchBar
 import com.plcoding.bookpedia.core.presentation.DarkBlue
 import com.plcoding.bookpedia.core.presentation.DesertWhite
 import com.plcoding.bookpedia.core.presentation.SandYellow
 import org.jetbrains.compose.resources.stringResource
+import org.jetbrains.compose.ui.tooling.preview.Preview
 import org.koin.compose.viewmodel.koinViewModel
+
 
 @Composable
 fun BookListScreenRoot(
-    viewModel: BookListViewModel = koinViewModel(),
-    onBookClick: (Book) -> Unit,
+    viewmodel: BookListViewmodel = koinViewModel(),
+    onBookClick: (Book) -> Unit
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
+    val state by viewmodel.state.collectAsStateWithLifecycle()
 
     BookListScreen(
         state = state,
@@ -60,32 +62,24 @@ fun BookListScreenRoot(
                 is BookListAction.OnBookClick -> onBookClick(action.book)
                 else -> Unit
             }
-            viewModel.onAction(action)
+            viewmodel.onAction(action)
         }
     )
 }
 
 @Composable
-fun BookListScreen(
+private fun BookListScreen(
     state: BookListState,
-    onAction: (BookListAction) -> Unit,
+    onAction: (BookListAction) -> Unit
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
 
-    val pagerState = rememberPagerState { 2 }
-    val searchResultsListState = rememberLazyListState()
-    val favoriteBooksListState = rememberLazyListState()
+    val pagerState = rememberPagerState{ 2 }
+    val searchResultState = rememberLazyListState()
+    val favoriteBookState = rememberLazyListState()
 
-    LaunchedEffect(state.searchResults) {
-        searchResultsListState.animateScrollToItem(0)
-    }
-
-    LaunchedEffect(state.selectedTabIndex) {
-        pagerState.animateScrollToPage(state.selectedTabIndex)
-    }
-
-    LaunchedEffect(pagerState.currentPage) {
-        onAction(BookListAction.OnTabSelected(pagerState.currentPage))
+    LaunchedEffect(state.searchResult) {
+        searchResultState.animateScrollToItem(0)
     }
 
     Column(
@@ -108,6 +102,7 @@ fun BookListScreen(
                 .fillMaxWidth()
                 .padding(16.dp)
         )
+
         Surface(
             modifier = Modifier
                 .weight(1f)
@@ -118,9 +113,11 @@ fun BookListScreen(
                 topEnd = 32.dp
             )
         ) {
+
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
+
                 TabRow(
                     selectedTabIndex = state.selectedTabIndex,
                     modifier = Modifier
@@ -128,18 +125,19 @@ fun BookListScreen(
                         .widthIn(max = 700.dp)
                         .fillMaxWidth(),
                     containerColor = DesertWhite,
-                    indicator = { tabPositions ->
+                    contentColor = SandYellow,
+                    indicator = { tabPosition ->
                         TabRowDefaults.SecondaryIndicator(
                             color = SandYellow,
                             modifier = Modifier
-                                .tabIndicatorOffset(tabPositions[state.selectedTabIndex])
+                                .tabIndicatorOffset(tabPosition[state.selectedTabIndex])
                         )
                     }
                 ) {
                     Tab(
                         selected = state.selectedTabIndex == 0,
                         onClick = {
-                            onAction(BookListAction.OnTabSelected(0))
+                            onAction(BookListAction.OnTabSelected(tabIndex = 0))
                         },
                         modifier = Modifier.weight(1f),
                         selectedContentColor = SandYellow,
@@ -147,14 +145,13 @@ fun BookListScreen(
                     ) {
                         Text(
                             text = stringResource(Res.string.search_results),
-                            modifier = Modifier
-                                .padding(vertical = 12.dp)
+                            modifier = Modifier.padding(vertical = 12.dp)
                         )
                     }
                     Tab(
                         selected = state.selectedTabIndex == 1,
                         onClick = {
-                            onAction(BookListAction.OnTabSelected(1))
+                            onAction(BookListAction.OnTabSelected(tabIndex = 1))
                         },
                         modifier = Modifier.weight(1f),
                         selectedContentColor = SandYellow,
@@ -162,12 +159,13 @@ fun BookListScreen(
                     ) {
                         Text(
                             text = stringResource(Res.string.favorites),
-                            modifier = Modifier
-                                .padding(vertical = 12.dp)
+                            modifier = Modifier.padding(vertical = 12.dp)
                         )
                     }
                 }
+
                 Spacer(modifier = Modifier.height(4.dp))
+
                 HorizontalPager(
                     state = pagerState,
                     modifier = Modifier
@@ -175,13 +173,12 @@ fun BookListScreen(
                         .weight(1f)
                 ) { pageIndex ->
                     Box(
-                        modifier = Modifier
-                            .fillMaxSize(),
+                        modifier = Modifier.fillMaxSize(),
                         contentAlignment = Alignment.Center
                     ) {
                         when(pageIndex) {
                             0 -> {
-                                if(state.isLoading) {
+                                if (state.isLoading) {
                                     CircularProgressIndicator()
                                 } else {
                                     when {
@@ -193,7 +190,7 @@ fun BookListScreen(
                                                 color = MaterialTheme.colorScheme.error
                                             )
                                         }
-                                        state.searchResults.isEmpty() -> {
+                                        state.searchResult.isEmpty() -> {
                                             Text(
                                                 text = stringResource(Res.string.no_search_results),
                                                 textAlign = TextAlign.Center,
@@ -201,41 +198,89 @@ fun BookListScreen(
                                                 color = MaterialTheme.colorScheme.error
                                             )
                                         }
-                                        else -> {
-                                            BookList(
-                                                books = state.searchResults,
-                                                onBookClick = {
-                                                    onAction(BookListAction.OnBookClick(it))
-                                                },
-                                                modifier = Modifier.fillMaxSize(),
-                                                scrollState = searchResultsListState
-                                            )
-                                        }
                                     }
+                                    BookList(
+                                        books = state.searchResult,
+                                        onBookClick = { book ->
+                                            onAction(BookListAction.OnBookClick(book))
+                                        },
+                                        modifier = Modifier.fillMaxSize(),
+                                        scrollState = searchResultState,
+                                    )
                                 }
                             }
                             1 -> {
-                                if(state.favoriteBooks.isEmpty()) {
+                                if (state.favoriteBooks.isEmpty()) {
                                     Text(
                                         text = stringResource(Res.string.no_favorite_books),
                                         textAlign = TextAlign.Center,
                                         style = MaterialTheme.typography.headlineSmall,
+                                        color = MaterialTheme.colorScheme.error
                                     )
                                 } else {
                                     BookList(
                                         books = state.favoriteBooks,
-                                        onBookClick = {
-                                            onAction(BookListAction.OnBookClick(it))
+                                        onBookClick = { book ->
+                                            onAction(BookListAction.OnBookClick(book))
                                         },
                                         modifier = Modifier.fillMaxSize(),
-                                        scrollState = favoriteBooksListState
+                                        scrollState = favoriteBookState,
                                     )
                                 }
                             }
                         }
                     }
                 }
+
             }
+
         }
     }
 }
+
+
+
+@Preview
+@Composable
+private fun PreviewBookListScreen() {
+    BookListScreen(
+        state = BookListState(
+            searchResult = books
+        ),
+        onAction = {}
+    )
+}
+
+
+private val books = (1..100).map {
+    Book(
+        id = it.toString(),
+        title = "Book $it",
+        imageUrl = "https://example.com/img.jpg",
+        authors = listOf("Vinayak Lokhande"),
+        description = "Description $it",
+        languages = emptyList(),
+        firstPublishYear = null,
+        averageRating = 4.24323,
+        ratingCount = 5,
+        numPages = 100,
+        numEditions = 3
+    )
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
