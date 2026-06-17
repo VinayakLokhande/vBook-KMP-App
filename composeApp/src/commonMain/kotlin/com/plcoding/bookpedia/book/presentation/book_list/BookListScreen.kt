@@ -37,7 +37,7 @@ import cmp_bookpedia.composeapp.generated.resources.favorites
 import cmp_bookpedia.composeapp.generated.resources.no_favorite_books
 import cmp_bookpedia.composeapp.generated.resources.no_search_results
 import cmp_bookpedia.composeapp.generated.resources.search_results
-import com.plcoding.bookpedia.book.data.Book
+import com.plcoding.bookpedia.book.domain.Book
 import com.plcoding.bookpedia.book.presentation.book_list.components.BookList
 import com.plcoding.bookpedia.book.presentation.book_list.components.BookSearchBar
 import com.plcoding.bookpedia.core.presentation.DarkBlue
@@ -80,6 +80,14 @@ private fun BookListScreen(
 
     LaunchedEffect(state.searchResult) {
         searchResultState.animateScrollToItem(0)
+    }
+
+    LaunchedEffect(state.selectedTabIndex) {
+        pagerState.animateScrollToPage(state.selectedTabIndex)
+    }
+
+    LaunchedEffect(pagerState.currentPage) {
+        onAction(BookListAction.OnTabSelected(pagerState.currentPage))
     }
 
     Column(
@@ -252,21 +260,6 @@ private fun PreviewBookListScreen() {
 }
 
 
-private val books = (1..100).map {
-    Book(
-        id = it.toString(),
-        title = "Book $it",
-        imageUrl = "https://example.com/img.jpg",
-        authors = listOf("Vinayak Lokhande"),
-        description = "Description $it",
-        languages = emptyList(),
-        firstPublishYear = null,
-        averageRating = 4.24323,
-        ratingCount = 5,
-        numPages = 100,
-        numEditions = 3
-    )
-}
 
 
 
