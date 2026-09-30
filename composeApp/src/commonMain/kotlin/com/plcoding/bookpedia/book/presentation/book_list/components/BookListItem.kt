@@ -14,9 +14,9 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
-import androidx.compose.material.icons.filled.Star
+//import androidx.compose.material.icons.Icons
+//import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+//import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -35,6 +35,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import cmp_bookpedia.composeapp.generated.resources.Res
 import cmp_bookpedia.composeapp.generated.resources.book_error_2
+import cmp_bookpedia.composeapp.generated.resources.ic_clear
 import coil3.compose.rememberAsyncImagePainter
 import com.plcoding.bookpedia.book.domain.Book
 import com.plcoding.bookpedia.core.presentation.LightBlue
@@ -138,7 +139,7 @@ fun BookListItem(
                             style = MaterialTheme.typography.bodyMedium
                         )
                         Icon(
-                            imageVector = Icons.Default.Star,
+                            painter = painterResource(Res.drawable.ic_clear),
                             contentDescription = null,
                             tint = SandYellow
                         )
@@ -147,7 +148,7 @@ fun BookListItem(
             }
 
             Icon(
-                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                painter = painterResource(Res.drawable.ic_clear),
                 contentDescription = null,
                 modifier = Modifier
                     .size(36.dp)

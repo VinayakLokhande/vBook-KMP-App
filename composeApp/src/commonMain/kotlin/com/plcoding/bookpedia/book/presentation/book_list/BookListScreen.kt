@@ -248,16 +248,32 @@ private fun BookListScreen(
 
 
 
-@Preview
-@Composable
-private fun PreviewBookListScreen() {
-    BookListScreen(
-        state = BookListState(
-            searchResult = books
-        ),
-        onAction = {}
-    )
-}
+//private val books = (1..100).map {
+//    Book(
+//        id = it.toString(),
+//        title = "Book $it",
+//        imageUrl = "https://example.com/img.jpg",
+//        authors = listOf("Vinayak Lokhande"),
+//        description = "Description $it",
+//        languages = emptyList(),
+//        firstPublishYear = null,
+//        averageRating = 4.24323,
+//        ratingCount = 5,
+//        numPages = 100,
+//        numEditions = 3
+//    )
+//}
+//
+//@Preview
+//@Composable
+//private fun PreviewBookListScreen() {
+//    BookListScreen(
+//        state = BookListState(
+//            searchResult = books
+//        ),
+//        onAction = {}
+//    )
+//}
 
 
 

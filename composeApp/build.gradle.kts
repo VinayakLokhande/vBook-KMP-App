@@ -12,6 +12,10 @@ plugins {
     alias(libs.plugins.room)
 }
 
+room {
+    schemaDirectory("$projectDir/schemas")
+}
+
 kotlin {
     androidTarget {
         @OptIn(ExperimentalKotlinGradlePluginApi::class)
@@ -21,7 +25,6 @@ kotlin {
     }
     
     listOf(
-        iosX64(),
         iosArm64(),
         iosSimulatorArm64()
     ).forEach { iosTarget ->
@@ -32,10 +35,6 @@ kotlin {
     }
     
     jvm("desktop")
-
-    room {
-        schemaDirectory("$projectDir/schemas")
-    }
 
     sourceSets {
         val desktopMain by getting
@@ -48,6 +47,7 @@ kotlin {
             implementation(libs.koin.androidx.compose)
             implementation(libs.ktor.client.okhttp)
         }
+
         commonMain.dependencies {
             implementation(compose.runtime)
             implementation(compose.foundation)
@@ -55,9 +55,6 @@ kotlin {
             implementation(compose.ui)
             implementation(compose.components.resources)
             implementation(compose.components.uiToolingPreview)
-            implementation(libs.androidx.lifecycle.viewmodel)
-            implementation(libs.androidx.lifecycle.runtime.compose)
-
             implementation(libs.androidx.lifecycle.viewmodel)
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation(libs.jetbrains.compose.navigation)
@@ -71,18 +68,17 @@ kotlin {
             implementation(libs.bundles.ktor)
             implementation(libs.bundles.coil)
         }
+
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)
             implementation(libs.kotlinx.coroutines.swing)
             implementation(libs.ktor.client.okhttp)
         }
+
         nativeMain.dependencies {
             implementation(libs.ktor.client.darwin)
         }
 
-        dependencies {
-            ksp(libs.androidx.room.compiler)
-        }
     }
 }
 
@@ -115,6 +111,7 @@ android {
 
 dependencies {
     debugImplementation(compose.uiTooling)
+    ksp(libs.androidx.room.compiler)
 }
 
 compose.desktop {

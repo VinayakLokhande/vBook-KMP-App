@@ -3,15 +3,13 @@ package com.plcoding.bookpedia.book.presentation.book_list
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.plcoding.bookpedia.book.domain.Book
-import com.plcoding.bookpedia.book.domain.repository.BootRepository
+import com.plcoding.bookpedia.book.domain.repository.BookRepository
 import com.plcoding.bookpedia.core.domain.onError
 import com.plcoding.bookpedia.core.domain.onSuccess
 import com.plcoding.bookpedia.core.presentation.toUiText
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.WhileSubscribed
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.launchIn
@@ -24,7 +22,7 @@ import kotlinx.coroutines.launch
 
 
 class BookListViewmodel(
-    private val bookRepository: BootRepository
+    private val bookRepository: BookRepository
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(BookListState())
@@ -33,6 +31,7 @@ class BookListViewmodel(
             if (cachedBooks.isEmpty()) {
                 observeSearchQuery()
             }
+            observeFavoriteBooks()
         }
         .stateIn(
             viewModelScope,
@@ -42,6 +41,7 @@ class BookListViewmodel(
 
     val cachedBooks = emptyList<Book>()
     var searchJob: Job? = null
+    var observeFavoriteBookJob: Job? = null
 
     fun onAction(action: BookListAction) {
         when (action) {
@@ -114,6 +114,20 @@ class BookListViewmodel(
                 }
             }
 
+    }
+
+    private fun observeFavoriteBooks() {
+        observeFavoriteBookJob?.cancel()
+        observeFavoriteBookJob = bookRepository
+            .getFavoriteBooks()
+            .onEach { favoriteBooks ->
+                _state.update {
+                    it.copy(
+                        favoriteBooks = favoriteBooks
+                    )
+                }
+            }
+            .launchIn(viewModelScope)
     }
 
 }

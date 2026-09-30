@@ -1,5 +1,7 @@
 package com.plcoding.bookpedia.book.presentation.book_list.components
 
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.InteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
